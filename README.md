@@ -1,1 +1,1 @@
-# DP_Synthetic_data_generation
+# Differentially Private Synthetic Data Generation via Lipschitz-Regularised Variational Autoencoders
