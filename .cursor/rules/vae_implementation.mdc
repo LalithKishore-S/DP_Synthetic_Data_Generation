@@ -1,0 +1,199 @@
+---
+description: Enforce faithful implementation and reproducibility of the VAE research paper.
+alwaysApply: true
+---
+
+# VAE Research Implementation Rules
+
+## Scope
+
+The current project phase is ONLY the VAE implementation
+described in papers/DP_VAE.pdf.
+
+Do not implement:
+
+- Quantization
+- Compression
+- DP extensions not explicitly part of the current paper phase
+- Future research extensions
+- Unrequested architectural modifications
+
+---
+
+## Paper First
+
+Before implementing a component:
+
+1. Read the relevant part of papers/DP_VAE.pdf.
+2. Identify the corresponding equation, algorithm,
+   figure, table, or section.
+3. Compare the planned implementation with the paper.
+4. Record important details in docs/methodology.md.
+
+The paper takes precedence over generic VAE conventions.
+
+---
+
+## Complete Paper Implementation
+
+The implementation should cover the entire methodology
+required to reproduce the paper's VAE experiments.
+
+Do not stop after creating only:
+
+- Encoder
+- Decoder
+- VAE loss
+
+Also implement the paper's:
+
+- Dataset pipeline
+- Preprocessing
+- Training procedure
+- Experimental settings
+- Generation procedure
+- Evaluation procedure
+- Required baselines
+
+---
+
+## Master Notebook
+
+The complete experiment must be executable through:
+
+src/notebooks/vae_paper_implementation.ipynb
+
+The notebook should provide a clear end-to-end pipeline:
+
+Setup
+→ Data
+→ Preprocessing
+→ Model
+→ Training
+→ Checkpoint
+→ Generation
+→ Evaluation
+→ Results
+
+Do not create multiple disconnected notebooks unless explicitly
+requested.
+
+---
+
+## Source Code
+
+Keep reusable implementation under:
+
+src/data/
+src/models/
+src/scripts/
+
+The notebook should import and use these modules.
+
+Do not place large duplicated implementations in the notebook
+if the same functionality belongs in src/.
+
+---
+
+## Output Management
+
+All generated artifacts must be stored under:
+
+results/models/
+results/metrics/
+results/plots/
+results/samples/
+results/logs/
+
+Never place generated checkpoints, plots, or datasets inside
+src/.
+
+Never silently overwrite existing results.
+
+---
+
+## Experiment Reproducibility
+
+Every experiment must record:
+
+- Configuration
+- Seed
+- Dataset
+- Model
+- Hyperparameters
+- Device
+- Software versions
+- Results
+
+Use machine-readable formats such as JSON, CSV, YAML, or
+similar formats where appropriate.
+
+---
+
+## Validation
+
+Before a full experiment:
+
+- Run a forward-pass test.
+- Run a backward-pass test.
+- Verify loss calculations.
+- Run a small training smoke test.
+- Verify checkpoint save/load.
+- Verify sample generation.
+
+Run tests after significant implementation changes.
+
+Do not claim tests passed unless they were actually executed.
+
+---
+
+## Research Integrity
+
+Never fabricate:
+
+- Paper results
+- Hyperparameters
+- Architecture details
+- Evaluation scores
+- Training results
+
+Clearly distinguish:
+
+PAPER RESULT
+from
+OUR RESULT
+
+If reproduction differs from the paper, document the difference.
+
+---
+
+## Environment
+
+The local development machine is macOS.
+
+Full training may be performed in Google Colab.
+
+Do not hardcode CUDA.
+
+Use device detection and make the code portable between:
+
+- CUDA
+- MPS
+- CPU
+
+where technically appropriate.
+
+---
+
+## Before Finishing a Task
+
+Report:
+
+1. Files created/modified.
+2. Implementation completed.
+3. Tests executed.
+4. Test results.
+5. Experiments executed.
+6. Output locations.
+7. Any deviations from the paper.
+8. Any unresolved issues.
