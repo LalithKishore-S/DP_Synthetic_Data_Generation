@@ -1,0 +1,8 @@
+experiment:
+  id: exp_lvae_gp_mnist
+train:
+  variant: lvae_gp
+lvae:
+  method: gradient_penalty
+  lipschitz_L: 1.0
+  gp_lambda: 10.0

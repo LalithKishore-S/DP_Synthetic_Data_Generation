@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# Data cache (MNIST downloads)
+data/mnist/
+
+# Experiment artifacts (keep directory structure via .gitkeep)
+results/**/*.pt
+results/**/*.pth
+results/**/*.npy
+results/**/*.png
+results/**/*.csv
+results/**/*.json
+results/**/*.log
+!results/**/.gitkeep
+
+# OS / editor
+.DS_Store
+.vscode/
+.cursor/*.log

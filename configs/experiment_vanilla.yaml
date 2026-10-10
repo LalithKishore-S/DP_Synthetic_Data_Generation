@@ -1,0 +1,6 @@
+experiment:
+  id: exp_vanilla_mnist
+train:
+  variant: vanilla
+lvae:
+  method: none
