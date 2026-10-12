@@ -16,11 +16,22 @@ def test_elbo_backward_all_params() -> None:
     assert missing == []
 
 
+# def test_gradient_penalty_backward() -> None:
+#     model = VAE(latent_dim=8)
+#     z = torch.randn(2, 8)
+#     gp = decoder_gradient_penalty(model.decoder, z, lipschitz_L=1.0)
+#     gp.backward()
+#     decoder_grads = [p.grad is not None for n, p in model.named_parameters() if n.startswith("decoder.") and p.requires_grad]
+#     assert any(decoder_grads)
+#     assert torch.isfinite(gp)
+
 def test_gradient_penalty_backward() -> None:
     model = VAE(latent_dim=8)
-    z = torch.randn(2, 8)
-    gp = decoder_gradient_penalty(model.decoder, z, lipschitz_L=1.0)
+    z = torch.randn(4, 8)
+    gp = decoder_gradient_penalty(model.decoder, z, lipschitz_L=1e-3)
+    assert torch.isfinite(gp) and gp.item() > 0
     gp.backward()
-    decoder_grads = [p.grad is not None for n, p in model.named_parameters() if n.startswith("decoder.") and p.requires_grad]
-    assert any(decoder_grads)
-    assert torch.isfinite(gp)
+    assert any(
+        p.grad is not None and p.grad.abs().sum() > 0
+        for n, p in model.named_parameters() if n.startswith("decoder.")
+    )

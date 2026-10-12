@@ -28,6 +28,8 @@ def generate_samples(
     probs = logits_to_probs(logits)
     if postprocess == "threshold":
         return (probs >= 0.5).float().cpu()
+    if postprocess == "bernoulli":
+        return torch.bernoulli(probs).cpu()
     return probs.cpu()
 
 

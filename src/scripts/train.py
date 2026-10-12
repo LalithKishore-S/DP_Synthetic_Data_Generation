@@ -7,6 +7,7 @@ import argparse
 import json
 from pathlib import Path
 import sys
+import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
@@ -22,6 +23,9 @@ from src.utils.reproducibility import set_seed
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train paper VAE variant")
+    parser.add_argument("--lipschitz-L", type=float)
+    parser.add_argument("--gp-lambda", type=float)
+    parser.add_argument("--noise-multiplier", type=float)
     parser.add_argument("--config", type=Path, default=ROOT / "configs" / "default.yaml")
     parser.add_argument("--variant", choices=["vanilla", "lvae_gp", "lvae_sn", "dpsgd"])
     parser.add_argument("--epochs", type=int)
@@ -44,6 +48,13 @@ def main() -> None:
             override["lvae"] = {"method": "gradient_penalty"}
         elif args.variant == "lvae_sn":
             override["lvae"] = {"method": "spectral_norm"}
+
+    if args.lipschitz_L is not None:
+        override.setdefault("lvae", {})["lipschitz_L"] = args.lipschitz_L
+    if args.gp_lambda is not None:
+        override.setdefault("lvae", {})["gp_lambda"] = args.gp_lambda
+    if args.noise_multiplier is not None:
+        override.setdefault("dpsgd", {})["noise_multiplier"] = args.noise_multiplier
     if args.epochs is not None:
         override.setdefault("train", {})["epochs"] = args.epochs
     if args.n_train is not None:
@@ -74,6 +85,7 @@ def main() -> None:
         add_white_outlier=bool(config["dataset"]["add_white_outlier"]),
         seed=int(config["train"]["seed"]),
     )
+    np.save(experiment_dir / "logs" / "train_indices.npy", split.train_indices)
     loader = make_loader(
         split.train_images,
         batch_size=int(config["train"]["batch_size"]),

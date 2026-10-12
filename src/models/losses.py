@@ -36,27 +36,47 @@ def elbo_loss(
     return {"loss": total, "recon": recon, "kl": kl}
 
 
+# def decoder_gradient_penalty(
+#     decoder: nn.Module,
+#     z: torch.Tensor,
+#     lipschitz_L: float,
+# ) -> torch.Tensor:
+#     """WGAN-GP-style penalty on ||∂μ_θ/∂z|| (ASSUMED adaptation of [24]).
+
+#     Uses a random output projection so the penalty is a scalar function of z.
+#     """
+#     z_in = z.detach().requires_grad_(True)
+#     output = decoder(z_in)
+#     noise = torch.randn_like(output)
+#     flat = noise.flatten(1)
+#     noise = noise / (flat.norm(dim=1).view(-1, 1, 1, 1) + 1e-8)
+#     grads = torch.autograd.grad(
+#         outputs=output,
+#         inputs=z_in,
+#         grad_outputs=noise,
+#         create_graph=True,
+#         retain_graph=True,
+#         only_inputs=True,
+#     )[0]
+#     grad_norm = grads.flatten(1).norm(dim=1)
+#     return ((grad_norm - lipschitz_L) ** 2).mean()
+
 def decoder_gradient_penalty(
     decoder: nn.Module,
     z: torch.Tensor,
     lipschitz_L: float,
+    n_projections: int = 1,
 ) -> torch.Tensor:
-    """WGAN-GP-style penalty on ||∂μ_θ/∂z|| (ASSUMED adaptation of [24]).
-
-    Uses a random output projection so the penalty is a scalar function of z.
-    """
+    
     z_in = z.detach().requires_grad_(True)
     output = decoder(z_in)
-    noise = torch.randn_like(output)
-    flat = noise.flatten(1)
-    noise = noise / (flat.norm(dim=1).view(-1, 1, 1, 1) + 1e-8)
-    grads = torch.autograd.grad(
-        outputs=output,
-        inputs=z_in,
-        grad_outputs=noise,
-        create_graph=True,
-        retain_graph=True,
-        only_inputs=True,
-    )[0]
-    grad_norm = grads.flatten(1).norm(dim=1)
-    return ((grad_norm - lipschitz_L) ** 2).mean()
+    fro_sq = torch.zeros(z_in.shape[0], device=z_in.device)
+    for _ in range(n_projections):
+        v = torch.randn_like(output)
+        g = torch.autograd.grad(
+            outputs=output, inputs=z_in, grad_outputs=v,
+            create_graph=True, retain_graph=True, only_inputs=True,
+        )[0]
+        fro_sq = fro_sq + g.flatten(1).pow(2).sum(dim=1)
+    fro = (fro_sq / n_projections + 1e-12).sqrt()
+    return F.relu(fro - lipschitz_L).pow(2).mean()

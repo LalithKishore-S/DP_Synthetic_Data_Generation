@@ -15,6 +15,8 @@ import torch
 from torch.utils.data import DataLoader, Dataset, Subset
 from torchvision import datasets, transforms
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
 
 class Binarize:
     """Map pixels in [0, 1] to {0, 1}. ASSUMED threshold rule."""
@@ -58,6 +60,9 @@ class TensorImageDataset(Dataset):
 
 
 def _load_mnist_tensors(data_dir: str | Path, download: bool) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    data_dir = Path(data_dir)
+    if not data_dir.is_absolute():
+        data_dir = PROJECT_ROOT / data_dir
     train = datasets.MNIST(root=str(data_dir), train=True, download=download, transform=transforms.ToTensor())
     test = datasets.MNIST(root=str(data_dir), train=False, download=download, transform=transforms.ToTensor())
     train_x = train.data.unsqueeze(1).float() / 255.0

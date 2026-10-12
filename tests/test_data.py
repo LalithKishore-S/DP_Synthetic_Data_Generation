@@ -33,3 +33,15 @@ def test_mia_split_sizes() -> None:
     assert sets["member_images"].shape[0] == 5
     assert sets["nonmember_images"].shape[0] == 7
     assert 19 in set(sets["member_indices"].tolist())
+
+def test_build_paper_data_has_exactly_one_white_outlier(monkeypatch) -> None:
+    import src.data.mnist as m
+    monkeypatch.setattr(
+        m, "_load_mnist_tensors",
+        lambda d, download: (torch.rand(200, 1, 28, 28), torch.zeros(200, dtype=torch.long),
+                             torch.rand(50, 1, 28, 28), torch.zeros(50, dtype=torch.long)),
+    )
+    split = m.build_mnist_paper_data("unused", n_train=99, seed=0)
+    assert split.train_images.shape[0] == 100
+    white = (split.train_images.flatten(1) == 1).all(dim=1)
+    assert white.sum() == 1 and bool(white[-1])

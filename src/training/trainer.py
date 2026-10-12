@@ -15,6 +15,8 @@ from src.models.losses import decoder_gradient_penalty, elbo_loss
 from src.models.vae import VAE
 from src.utils.device import get_device
 from src.utils.environment import collect_environment
+import time
+from src.evaluation.plots import save_training_plot
 
 
 def build_model(config: dict[str, Any]) -> VAE:
@@ -100,7 +102,12 @@ def train_vae(
             loss = terms["loss"]
             gp_value = torch.zeros((), device=device)
             if use_gp:
-                gp_value = decoder_gradient_penalty(model.decoder, out["z"], lipschitz_L)
+                # gp_value = decoder_gradient_penalty(model.decoder, out["z"], lipschitz_L)
+                z_probe = torch.cat([out["z"].detach(), torch.randn_like(out["z"])], dim=0)
+                gp_value = decoder_gradient_penalty(
+                    model.decoder, z_probe, lipschitz_L,
+                    n_projections=int(config.get("lvae", {}).get("gp_n_projections", 1)),
+                )
                 loss = loss + gp_lambda * gp_value
             loss.backward()
             optimizer.step()
@@ -128,6 +135,7 @@ def train_vae(
             step_callback(row)
 
     _write_training_artifacts(experiment_dir, model, config, history, privacy_engine)
+    save_training_plot(history, experiment_dir / "plots" / "training_loss.png")
     return {"history": history, "model": model, "privacy_engine": privacy_engine}
 
 

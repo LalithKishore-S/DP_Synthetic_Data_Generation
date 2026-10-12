@@ -46,6 +46,7 @@ lvae:
   method: none  # none | gradient_penalty | spectral_norm
   lipschitz_L: 1.0  # ASSUMED
   gp_lambda: 10.0  # ASSUMED (WGAN-GP literature, not this paper)
+  gp_n_projections: 1     # ASSUMED
 
 dpsgd:
   # ASSUMED defaults; paper only cites Abadi et al. [8]
