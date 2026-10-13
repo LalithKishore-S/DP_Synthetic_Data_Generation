@@ -1,0 +1,14 @@
+# Runtime (PyTorch is a documented DEVIATION from TensorFlow 2.6 in the paper)
+torch>=2.1.0
+torchvision>=0.16.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+matplotlib>=3.7.0
+pyyaml>=6.0
+tqdm>=4.66.0
+
+# Optional DP-SGD baseline (Abadi et al. [8]); trainer falls back if missing
+opacus>=1.4.0
+
+# Tests
+pytest>=7.4.0

@@ -1,0 +1,67 @@
+# Default experiment configuration for papers/DP_VAE.pdf MNIST VAE.
+# Keys marked ASSUMED are not stated in the paper. See docs/methodology.md.
+
+paper:
+  citation: "Groß & Wunder, arXiv:2304.11336v2"
+  framework_in_paper: tensorflow-2.6
+  framework_here: pytorch  # DEVIATION (stack only)
+
+dataset:
+  name: mnist  # VERIFIED Section V
+  image_size: 28  # VERIFIED
+  n_train: 9999  # VERIFIED Section V-A
+  add_white_outlier: true  # VERIFIED
+  binarize: true  # VERIFIED
+  binarize_threshold: 0.5  # ASSUMED
+  data_dir: data/mnist
+
+model:
+  conv_filters: [32, 64, 128, 32]  # VERIFIED Section V-A
+  kernel_size: 3  # VERIFIED
+  stride: 2  # VERIFIED
+  encoder_hidden: 100  # VERIFIED
+  decoder_hidden: 100  # VERIFIED
+  decoder_reshape: [32, 7, 7]  # VERIFIED
+  tconv_filters: [64, 128]  # VERIFIED (two stride-2 upsamples)
+  output_channels: 1  # VERIFIED
+  latent_dim: 16  # ASSUMED (paper only names n_latent)
+  padding_mode: tensorflow_same  # INFERRED to match TF 2.6
+  last_layer_stride: 1  # ASSUMED; literal third stride-2 TConv would be 56x56
+
+loss:
+  reconstruction: bce_with_logits  # VERIFIED BCE + INFERRED logits
+  beta_kl: 1.0  # ASSUMED (beta-VAE cited but not used)
+
+train:
+  variant: vanilla  # vanilla | lvae_gp | lvae_sn | dpsgd
+  optimizer: adam  # ASSUMED
+  lr: 0.001  # ASSUMED
+  batch_size: 64  # ASSUMED
+  epochs: 50  # ASSUMED
+  seed: 42  # ASSUMED
+  num_workers: 0
+  log_interval: 20
+
+lvae:
+  method: none  # none | gradient_penalty | spectral_norm
+  lipschitz_L: 1.0  # ASSUMED
+  gp_lambda: 10.0  # ASSUMED (WGAN-GP literature, not this paper)
+  gp_n_projections: 1     # ASSUMED
+
+dpsgd:
+  # ASSUMED defaults; paper only cites Abadi et al. [8]
+  noise_multiplier: 1.1
+  max_grad_norm: 1.0
+  delta: 0.0001
+
+eval:
+  n_synthetic: 10000  # ASSUMED
+  n_members: 1000  # VERIFIED
+  n_nonmembers: 1000  # VERIFIED
+  n_sample_grid: 64
+  mia_metric: euclidean_nearest  # ASSUMED
+  sample_postprocess: sigmoid  # ASSUMED (decoder has no output activation)
+
+experiment:
+  id: exp_vanilla_mnist
+  results_root: results

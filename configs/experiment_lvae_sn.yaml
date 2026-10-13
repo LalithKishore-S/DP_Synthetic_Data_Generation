@@ -1,0 +1,7 @@
+experiment:
+  id: exp_lvae_sn_mnist
+train:
+  variant: lvae_sn
+lvae:
+  method: spectral_norm
+  lipschitz_L: 1.0

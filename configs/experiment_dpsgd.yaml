@@ -1,0 +1,8 @@
+experiment:
+  id: exp_dpsgd_mnist
+train:
+  variant: dpsgd
+dpsgd:
+  noise_multiplier: 1.1
+  max_grad_norm: 1.0
+  delta: 0.0001
